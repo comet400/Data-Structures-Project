@@ -13,6 +13,11 @@ Github: https://github.com/comet400/Data-Structures-Project.git
 #include <string.h>
 
 #define TABLE_SIZE 127 // Prime number for hash table size
+#define MAX_STRING 21 // Maximum string length
+#define MAX_WEIGHT 50000 // Maximum weight
+#define MAX_VALUATION 2000 // Maximum valuation
+#define MIN_WEIGHT 100 // Minimum weight
+#define MIN_VALUATION 10 // Minimum valuation
 #pragma warning(disable : 4996) // Disable warning for unsafe functions
 
 // Function prototypes
@@ -448,7 +453,7 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
         return;
     }
 
-    char destination[21] = { "Undefined" }; // Increase the buffer size to accommodate longer names
+    char destination[MAX_STRING] = { "Undefined" }; // Increase the buffer size to accommodate longer names
     int weight = 0;
     float valuation = 0;
     char line[200]; // Increase the buffer size to handle longer lines
@@ -468,7 +473,22 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
         {
             destination[len - 1] = '\0';
         }
-
+        if (weight > MAX_WEIGHT)
+        {
+            weight = MAX_WEIGHT;
+        }
+        else if (weight < MIN_WEIGHT)
+        {
+            weight = MIN_WEIGHT;
+        }
+        if (valuation > MAX_VALUATION)
+        {
+            valuation = MAX_VALUATION;
+        }
+        else if (valuation < MIN_VALUATION)
+        {
+            valuation = MIN_VALUATION;
+        }
         struct Parcel* parcel = createParcel(destination, weight, valuation); // Create a new parcel
         if (!parcel)
         {
@@ -493,8 +513,8 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
 void displayMenu(struct HashTable* table)
 {
 	int choice = 0;
-	char country[21] = { "Undefined" }; 
-	char input[21] = { "Undefined" }; 
+	char country[MAX_STRING] = { "Undefined" }; 
+	char input[MAX_STRING] = { "Undefined" };
 	int weight = 0;
 	int isHigher = 0;
 
@@ -518,7 +538,7 @@ void displayMenu(struct HashTable* table)
         {
         case 1:
             printf("Enter country name: ");
-            fgets(country, 21, stdin);
+            fgets(country, MAX_STRING, stdin);
             if (errorCheck == NULL) // Check if the input was read successfully
             {
                 printf("Error reading input\n");
@@ -529,7 +549,7 @@ void displayMenu(struct HashTable* table)
             break;
         case 2:
             printf("Enter country name: ");
-            fgets(country, 21, stdin);
+            fgets(country, MAX_STRING, stdin);
             if (errorCheck == NULL) // Check if the input was read successfully
             {
                 printf("Error reading input\n");
@@ -545,7 +565,7 @@ void displayMenu(struct HashTable* table)
             }
             weight = atoi(input);
             printf("Display parcels with weight higher (1) or lower (0): ");
-            fgets(input, 21, stdin);
+            fgets(input, MAX_STRING, stdin);
             if (errorCheck == NULL) // Check if the input was read successfully
             {
                 printf("Error reading input\n");
@@ -556,7 +576,7 @@ void displayMenu(struct HashTable* table)
             break;
         case 3:
             printf("Enter country name: ");
-            fgets(country, 21, stdin);
+            fgets(country, MAX_STRING, stdin);
             if (errorCheck == NULL) // Check if the input was read successfully
             {
                 printf("Error reading input\n");
@@ -567,7 +587,7 @@ void displayMenu(struct HashTable* table)
             break;
         case 4:
             printf("Enter country name: ");
-            fgets(country, 21, stdin);
+            fgets(country, MAX_STRING, stdin);
             if (errorCheck == NULL)
             {
                 printf("Error reading input\n");
@@ -578,7 +598,7 @@ void displayMenu(struct HashTable* table)
             break;
         case 5:
             printf("Enter country name: ");
-            fgets(country, 21, stdin);
+            fgets(country, MAX_STRING, stdin);
             if (errorCheck == NULL)
             {
                 printf("Error reading input\n");
