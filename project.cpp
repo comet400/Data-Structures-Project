@@ -474,3 +474,20 @@ void displayMenu(struct HashTable* table)
         }
     } while (choice != 6);
 }
+
+// Main function
+int main(void)
+{
+    struct HashTable table; // Create a hash table
+    initializeHashTable(&table); // Initialize the hash table
+    loadParcelsFromFile(&table, "couriers.txt"); // Load parcels from file
+    displayMenu(&table); // Display the menu
+
+    // Free allocated memory
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        freeMemory(table.table[i]); // Free memory for the BST
+    }
+
+    return 0;
+}
