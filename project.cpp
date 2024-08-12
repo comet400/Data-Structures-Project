@@ -1,3 +1,13 @@
+/* File: project.cpp
+Project: Data-Structures Project
+Programmer: Lukas Fukuoka Vieira
+First version: 12 of August, 2024
+Description: This Project was made in order to test out tree functions and store, destination, weight and valuation of parcels in a hash table.
+The program reads a file with the parcels and stores them in a hash table, then the user can choose to display parcels by country, search parcels by weight, display total weight and valuation for a country, display the cheapest and most expensive parcels for a country, display the lightest and heaviest parcels for a country, and exit the application.
+The program uses a hash table to store the parcels and a binary search tree to store the parcels for each country.
+Github: https://github.com/comet400/Data-Structures-Project.git
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,6 +58,11 @@ struct HashTable // Hash table structure
     struct TreeNode* table[TABLE_SIZE];
 };
 
+/* Function: createParcel
+ * Parameters: const char* destination, int weight, float valuation
+ * Description: creates a new parcel with the given destination, weight, and valuation
+ * Return value: Parcel pointer
+ */
 struct Parcel* createParcel(const char* destination, int weight, float valuation) // Create a new parcel
 {
     struct Parcel* newParcel = (struct Parcel*)malloc(sizeof(struct Parcel)); // Allocate memory for the parcel
@@ -68,6 +83,12 @@ struct Parcel* createParcel(const char* destination, int weight, float valuation
     return newParcel; // Return the new parcel
 }
 
+// Hash function (djb2)
+/* Function: hashFunction
+ * Parameters: const char* str
+ * Description: generates a hash value for the given string
+ * Return value: unsigned long
+ */
 unsigned long hashFunction(const char* str)
 {
     unsigned long hash = 5381; // Initial hash value
@@ -79,6 +100,11 @@ unsigned long hashFunction(const char* str)
     return hash % TABLE_SIZE; // Return the hash value modulo the table size
 }
 
+/* Function: createNode
+ * Parameters: struct Parcel* parcel
+ * Description: creates a new tree node with the given parcel
+ * Return value: TreeNode pointer
+ */
 struct TreeNode* createNode(struct Parcel* parcel) // Create a new tree node
 {
     struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode)); // Allocate memory for the node
@@ -92,6 +118,11 @@ struct TreeNode* createNode(struct Parcel* parcel) // Create a new tree node
     return newNode;     // Return the new node
 }
 
+/* Function: insertNode
+ * Parameters: struct TreeNode* root, struct Parcel* parcel
+ * Description: inserts a new node into the tree
+ * Return value: TreeNode pointer
+ */
 struct TreeNode* insertNode(struct TreeNode* root, struct Parcel* parcel) // Insert a new node into the tree
 {
     if (!root) // If the root is NULL, create a new node
@@ -109,6 +140,11 @@ struct TreeNode* insertNode(struct TreeNode* root, struct Parcel* parcel) // Ins
     return root;
 }
 
+/* Function: inOrderTraversal
+* Parameters : struct TreeNode* root
+* Description : performs an in - order traversal of the tree
+* Return value : void
+*/
 void inOrderTraversal(struct TreeNode* root) // In-order traversal of the tree
 {
     if (root)
@@ -119,6 +155,11 @@ void inOrderTraversal(struct TreeNode* root) // In-order traversal of the tree
     }
 }
 
+/* Function: findMin
+* Parameters : struct TreeNode* root
+* Description : finds the minimum node in the tree
+* Return value : TreeNode pointer
+*/
 struct TreeNode* findMin(struct TreeNode* root)
 {
     while (root && root->left)
@@ -128,6 +169,11 @@ struct TreeNode* findMin(struct TreeNode* root)
     return root;
 }
 
+/* Function: findMax
+* Parameters : struct TreeNode* root
+* Description : finds the maximum node in the tree
+* Return value : TreeNode pointer
+*/
 struct TreeNode* findMax(struct TreeNode* root)
 {
     while (root && root->right)
@@ -137,6 +183,11 @@ struct TreeNode* findMax(struct TreeNode* root)
     return root;
 }
 
+/* Function: findMinValuation
+* Parameters : struct TreeNode* root
+* Description : finds the minimum valuation node in the tree
+* Return value : TreeNode pointer
+*/
 struct TreeNode* findMinValuation(struct TreeNode* root)
 {
     if (!root) return NULL; // Return NULL if the root is NULL
@@ -161,6 +212,11 @@ struct TreeNode* findMinValuation(struct TreeNode* root)
     return minNode; // Return the minimum valuation node
 }
 
+/* Function: findMaxValuation
+* Parameters : struct TreeNode* root
+* Description : finds the maximum valuation node in the tree
+* Return value : TreeNode pointer
+*/
 struct TreeNode* findMaxValuation(struct TreeNode* root)
 {
     if (!root) return NULL;
@@ -185,6 +241,11 @@ struct TreeNode* findMaxValuation(struct TreeNode* root)
     return maxNode; // Return the maximum valuation node
 }
 
+/* Function to search for parcels by weight
+*  Parameters : struct TreeNode* root, int weight, int isHigher
+* Description : searches for parcels by weight in the tree
+* Return value : void
+*/
 void searchWeight(struct TreeNode* root, int weight, int isHigher)
 {
     if (root)
@@ -198,6 +259,11 @@ void searchWeight(struct TreeNode* root, int weight, int isHigher)
     }
 }
 
+/* Function: calculateTotalValuation
+* Parameters : struct TreeNode* root
+* Description : calculates the total valuation of parcels in the tree
+* Return value : float
+*/
 float calculateTotalValuation(struct TreeNode* root)
 {
     if (!root) // Return 0 if the root is NULL
@@ -207,6 +273,11 @@ float calculateTotalValuation(struct TreeNode* root)
     return root->parcel->valuation + calculateTotalValuation(root->left) + calculateTotalValuation(root->right); // Calculate the total valuation
 }
 
+/* Function: calculateTotalWeight
+* Parameters : struct TreeNode* root
+* Description : calculates the total weight of parcels in the tree
+* Return value : int
+*/
 int calculateTotalWeight(struct TreeNode* root)
 {
     if (!root)  // Return 0 if the root is NULL
@@ -216,6 +287,11 @@ int calculateTotalWeight(struct TreeNode* root)
     return root->parcel->weight + calculateTotalWeight(root->left) + calculateTotalWeight(root->right); // Calculate the total weight
 }
 
+/* Function: freeMemory
+* Parameters : struct TreeNode* root
+* Description : frees memory allocated for the tree
+* Return value : void
+*/
 void freeMemory(struct TreeNode* root)
 {
     if (root) // Check if the root is not NULL
@@ -228,6 +304,11 @@ void freeMemory(struct TreeNode* root)
     }
 }
 
+/* Function: initializeHashTable
+* Parameters : struct HashTable* table
+* Description : initializes the hash table
+* Return value : void
+*/
 void initializeHashTable(struct HashTable* table) // Initialize the hash table
 {
     for (int i = 0; i < TABLE_SIZE; i++) // Iterate through the table
@@ -236,6 +317,11 @@ void initializeHashTable(struct HashTable* table) // Initialize the hash table
     }
 }
 
+/* Function: insertParcel
+* Parameters : struct HashTable* table, struct Parcel* parcel
+* Description : inserts a parcel into the hash table
+* Return value : void
+*/
 void insertParcel(struct HashTable* table, struct Parcel* parcel) // Insert a parcel into the hash table
 {
     unsigned long index = hashFunction(parcel->destination); // Get the hash value
@@ -243,6 +329,11 @@ void insertParcel(struct HashTable* table, struct Parcel* parcel) // Insert a pa
     table->table[index] = insertNode(table->table[index], parcel); // Insert the parcel into the BST
 }
 
+/* Function: displayParcels
+* Parameters : struct HashTable* table, const char* country
+* Description : displays parcels for a given country
+* Return value : void
+*/
 void displayParcels(struct HashTable* table, const char* country) // Display parcels for a given country
 {
     unsigned long index = hashFunction(country); // Get the hash value
@@ -253,6 +344,11 @@ void displayParcels(struct HashTable* table, const char* country) // Display par
     }
 }
 
+/* Function: searchWeightForCountry
+* Parameters : struct HashTable* table, const char* country, int weight, int isHigher
+* Description : searches for parcels by weight for a given country
+* Return value : void
+*/
 void searchWeightForCountry(struct HashTable* table, const char* country, int weight, int isHigher)
 {
     unsigned long index = hashFunction(country); // Get the hash value
@@ -263,6 +359,11 @@ void searchWeightForCountry(struct HashTable* table, const char* country, int we
     }
 }
 
+/* Function: displayTotalForCountry
+* Parameters : struct HashTable* table, const char* country
+* Description : displays the total weight and valuation for a given country
+* Return value : void
+*/
 void displayTotalForCountry(struct HashTable* table, const char* country) // Display the total weight and valuation for a given country
 {
     unsigned long index = hashFunction(country); // Get the hash value
@@ -273,6 +374,11 @@ void displayTotalForCountry(struct HashTable* table, const char* country) // Dis
     }
 }
 
+/* Function: displayCheapestMostExpensive
+* Parameters : struct HashTable* table, const char* country
+* Description : displays the cheapest and most expensive parcels for a given country
+* Return value : void
+*/
 void displayCheapestMostExpensive(struct HashTable* table, const char* country) // Display the cheapest and most expensive parcels for a given country
 {
     unsigned long index = hashFunction(country);
@@ -298,6 +404,11 @@ void displayCheapestMostExpensive(struct HashTable* table, const char* country) 
     }
 }
 
+/* Function: displayLightestHeaviest
+* Parameters : struct HashTable* table, const char* country
+* Description : displays the lightest and heaviest parcels for a given country
+* Return value : void
+*/
 void displayLightestHeaviest(struct HashTable* table, const char* country)
 {
     unsigned long index = hashFunction(country); // Get the hash value
@@ -323,6 +434,11 @@ void displayLightestHeaviest(struct HashTable* table, const char* country)
     }
 }
 
+/* Function: loadParcelsFromFile
+* Parameters : struct HashTable* table, const char* filename
+* Description : loads parcels from a file into the hash table
+* Return value : void
+*/
 void loadParcelsFromFile(struct HashTable* table, const char* filename)
 {
     FILE* file = fopen(filename, "r"); // Open the file in read mode
@@ -369,13 +485,18 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
     }
 }
 
+/* Function: displayMenu
+* Parameters : struct HashTable* table
+* Description : displays the menu and handles user input
+* Return value : void
+*/
 void displayMenu(struct HashTable* table)
 {
-    int choice;
-    char country[21];
-    char input[21];
-    int weight;
-    int isHigher;
+	int choice = 0;
+	char country[21] = { "Undefined" }; 
+	char input[21] = { "Undefined" }; 
+	int weight = 0;
+	int isHigher = 0;
 
     do // Display the menu
     {
