@@ -37,7 +37,7 @@ void freeMemory(struct TreeNode* root);
 void initializeHashTable(struct HashTable* table);
 void insertParcel(struct HashTable* table, struct Parcel* parcel);
 void displayParcels(struct HashTable* table, const char* country);
-void searchWeightForCountry(struct HashTable* table, const char* country, int weight, int isHigher);
+void searchWeightForCountry(struct HashTable* table, const char* country, int weight);
 void displayTotalForCountry(struct HashTable* table, const char* country);
 void displayCheapestMostExpensive(struct HashTable* table, const char* country);
 void displayLightestHeaviest(struct HashTable* table, const char* country);
@@ -354,14 +354,27 @@ void displayParcels(struct HashTable* table, const char* country) // Display par
 * Description : searches for parcels by weight for a given country
 * Return value : void
 */
-void searchWeightForCountry(struct HashTable* table, const char* country, int weight, int isHigher)
+void searchWeightForCountry(struct HashTable* table, const char* country, int weight)
 {
     unsigned long index = hashFunction(country); // Get the hash value
-    printf("Parcels for %s with weight %s than %d:\n", country, isHigher ? "higher" : "lower", weight); // Print the country name and weight
-    if (table->table[index] != NULL) // Check if the table is not NULL
-    {
-        searchWeight(table->table[index], weight, isHigher); // Search for parcels by weight
-    }
+	printf("\nParcels with weight higher than %d for %s:\n", weight, country); // Print the country name
+	if (table->table[index] != NULL)
+	{
+		searchWeight(table->table[index], weight, 1); // Search for parcels with weight higher than the input
+	}
+	else
+	{
+		printf("No parcels found for %s.\n", country); // Print an error message
+	}
+	printf("\nParcels with weight lower than %d for %s:\n", weight, country); // Print the country name
+	if (table->table[index] != NULL)
+	{
+		searchWeight(table->table[index], weight, 0); // Search for parcels with weight lower than the input
+	}
+	else
+	{
+		printf("No parcels found for %s.\n", country); // Print an error message
+	}
 }
 
 /* Function: displayTotalForCountry
@@ -501,7 +514,7 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
     int close = fclose(file); // Close the file
     if (close != 0) // Check if the file was closed successfully
     {
-        perror("Error closing file"); // Print an error message
+        printf("Error closing file"); // Print an error message
     }
 }
 
@@ -512,11 +525,12 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
 */
 void displayMenu(struct HashTable* table)
 {
-	int choice = 0;
-	char country[MAX_STRING] = { "Undefined" }; 
-	char input[MAX_STRING] = { "Undefined" };
-	int weight = 0;
-	int isHigher = 0;
+    int choice = 0;
+    char country[MAX_STRING] = { "Undefined" };
+    char input[MAX_STRING] = { "Undefined" };
+    int weight = 0;
+    int isHigher = 0;
+	int inputWeight = 0;
 
     do // Display the menu
     {
@@ -558,21 +572,13 @@ void displayMenu(struct HashTable* table)
             country[strcspn(country, "\n")] = '\0';
             printf("Enter weight: ");
             fgets(input, 21, stdin);
+            inputWeight = atoi(input);
             if (errorCheck == NULL) // Check if the input was read successfully
             {
                 printf("Error reading input\n");
                 continue;
             }
-            weight = atoi(input);
-            printf("Display parcels with weight higher (1) or lower (0): ");
-            fgets(input, MAX_STRING, stdin);
-            if (errorCheck == NULL) // Check if the input was read successfully
-            {
-                printf("Error reading input\n");
-                continue;
-            }
-            isHigher = atoi(input);
-            searchWeightForCountry(table, country, weight, isHigher);  // Search parcels by weight
+            searchWeightForCountry(table, country, inputWeight); // Search for parcels with weight lower than the input
             break;
         case 3:
             printf("Enter country name: ");
