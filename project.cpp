@@ -43,6 +43,7 @@ void displayCheapestMostExpensive(struct HashTable* table, const char* country);
 void displayLightestHeaviest(struct HashTable* table, const char* country);
 void loadParcelsFromFile(struct HashTable* table, const char* filename);
 void displayMenu(struct HashTable* table);
+TreeNode* searchParcel(TreeNode* root, const char* destination);
 
 struct Parcel // Parcel structure
 {
@@ -523,103 +524,138 @@ void loadParcelsFromFile(struct HashTable* table, const char* filename)
 * Description : displays the menu and handles user input
 * Return value : void
 */
-void displayMenu(struct HashTable* table)
+void displayMenu(struct HashTable* table) 
 {
     int choice = 0;
     char country[MAX_STRING] = { "Undefined" };
     char input[MAX_STRING] = { "Undefined" };
     int weight = 0;
     int isHigher = 0;
-	int inputWeight = 0;
+    char destination[MAX_STRING] = { "Undefined" };
+    TreeNode* parcelNode = NULL;
 
-    do // Display the menu
+    do 
     {
         printf("\n1. Enter country name and display all the parcels details\n");
         printf("2. Enter country and weight pair\n");
         printf("3. Display the total parcel load and valuation for the country\n");
         printf("4. Enter the country name and display cheapest and most expensive parcels details\n");
         printf("5. Enter the country name and display lightest and heaviest parcel for the country\n");
-        printf("6. Exit the application\n");
+        printf("6. Exit the application\n"); 
         printf("Enter your choice: ");
-        char* errorCheck = fgets(input, 21, stdin); // Read the user input
-        choice = atoi(input); // Convert the input to an integer
-        if (errorCheck == NULL) // Check if the input was read successfully
-        {
-            printf("Error reading input\n");
-            continue;
-        }
-        switch (choice)
+        fgets(input, 21, stdin);
+        choice = atoi(input);
+
+        switch (choice) 
         {
         case 1:
             printf("Enter country name: ");
             fgets(country, MAX_STRING, stdin);
-            if (errorCheck == NULL) // Check if the input was read successfully
-            {
-                printf("Error reading input\n");
-                continue;
-            }
-            country[strcspn(country, "\n")] = '\0';
-            displayParcels(table, country);
+            country[strcspn(country, "\n")] = '\0'; // Remove newline character
+			parcelNode = searchParcel(table->table[hashFunction(country)], country);
+			if (parcelNode == NULL)
+            { 
+				printf("No parcels found for %s.\n", country); // Print an error message
+			}
+			else
+			{
+				displayParcels(table, country);
+			}
             break;
         case 2:
             printf("Enter country name: ");
             fgets(country, MAX_STRING, stdin);
-            if (errorCheck == NULL) // Check if the input was read successfully
-            {
-                printf("Error reading input\n");
-                continue;
-            }
-            country[strcspn(country, "\n")] = '\0';
+            country[strcspn(country, "\n")] = '\0'; // Remove newline character
             printf("Enter weight: ");
             fgets(input, 21, stdin);
-            inputWeight = atoi(input);
-            if (errorCheck == NULL) // Check if the input was read successfully
+            weight = atoi(input);
+			parcelNode = searchParcel(table->table[hashFunction(country)], country);
+			if (parcelNode == NULL)
+			{
+				printf("No parcels found for %s.\n", country); // Print an error message
+			}
+            else
             {
-                printf("Error reading input\n");
-                continue;
+                searchWeightForCountry(table, country, weight);
             }
-            searchWeightForCountry(table, country, inputWeight); // Search for parcels with weight lower than the input
             break;
         case 3:
             printf("Enter country name: ");
             fgets(country, MAX_STRING, stdin);
-            if (errorCheck == NULL) // Check if the input was read successfully
-            {
-                printf("Error reading input\n");
-                continue;
-            }
-            country[strcspn(country, "\n")] = '\0';
-            displayTotalForCountry(table, country); // Display the total weight and valuation
+            country[strcspn(country, "\n")] = '\0'; // Remove newline character
+			parcelNode = searchParcel(table->table[hashFunction(country)], country);
+			if (parcelNode == NULL)
+			{
+				printf("No parcels found for %s.\n", country); // Print an error message
+			}
+			else
+			{
+				displayTotalForCountry(table, country);
+			}
             break;
         case 4:
             printf("Enter country name: ");
             fgets(country, MAX_STRING, stdin);
-            if (errorCheck == NULL)
-            {
-                printf("Error reading input\n");
-                continue;
-            }
-            country[strcspn(country, "\n")] = '\0';
-            displayCheapestMostExpensive(table, country); // Display the cheapest and most expensive parcels
+            country[strcspn(country, "\n")] = '\0'; // Remove newline character
+			parcelNode = searchParcel(table->table[hashFunction(country)], country);
+			if (parcelNode == NULL)
+			{
+				printf("No parcels found for %s.\n", country); // Print an error message
+			}
+			else
+			{
+				displayCheapestMostExpensive(table, country);
+			}
             break;
         case 5:
             printf("Enter country name: ");
             fgets(country, MAX_STRING, stdin);
-            if (errorCheck == NULL)
-            {
-                printf("Error reading input\n");
-                continue;
+            country[strcspn(country, "\n")] = '\0'; // Remove newline character
+			parcelNode = searchParcel(table->table[hashFunction(country)], country);
+			if (parcelNode == NULL)
+			{
+				printf("No parcels found for %s.\n", country); // Print an error message
             }
-            country[strcspn(country, "\n")] = '\0';
-            displayLightestHeaviest(table, country); // Display the lightest and heaviest parcels
+			else
+			{
+				displayLightestHeaviest(table, country);    
+            }
             break;
-        case 6:
-            printf("Exiting application.\n");
+        case 6: // New case for searching a parcel by destination
+			exit(0);
             break;
+     
         default:
-            ;
+            printf("Invalid choice, please try again.\n");
+            break;
         }
     } while (choice != 6);
+}
+
+/* Function: searchParcel
+ * Parameters: struct TreeNode* root, const char* destination
+ * Description: searches for a parcel by its destination in the BST
+ * Return value: TreeNode pointer
+ */
+TreeNode* searchParcel(TreeNode* root, const char* destination) 
+{
+    if (root == NULL) 
+    {
+        return NULL; // Parcel not found
+    }
+    int comparison = strcmp(root->parcel->destination, destination);
+    if (comparison == 0) 
+    {
+        return root; // Parcel found
+    }
+    else if (comparison > 0) 
+    {
+        return searchParcel(root->left, destination); // Search in the left subtree
+    }
+    else 
+    {
+        return searchParcel(root->right, destination); // Search in the right subtree
+    }
 }
 
 // Main function
